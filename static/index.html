@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentry Solver - Dashboard</title>
+    
+    <!-- Favicon using fa-bug icon -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%2350fa7b' d='M256 0c53 0 96 43 96 96v3.6c0 15.7-12.7 28.4-28.4 28.4H188.4c-15.7 0-28.4-12.7-28.4-28.4V96c0-53 43-96 96-96zM41.4 105.4c12.5-12.5 32.8-12.5 45.3 0l64 64c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0l-64-64c-12.5-12.5-12.5-32.8 0-45.3zm429.3 0c12.5 12.5 12.5 32.8 0 45.3l-64 64c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l64-64c12.5-12.5 32.8-12.5 45.3 0zM128 224v32H64c-17.7 0-32 14.3-32 32s14.3 32 32 32h64v32c0 53 43 96 96 96s96-43 96-96V320h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H384V224c0-17.7-14.3-32-32-32s-32 14.3-32 32v32H192V224c0-17.7-14.3-32-32-32s-32 14.3-32 32zm160 96a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z'/%3E%3C/svg%3E" type="image/svg+xml">
+    <link rel="shortcut icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%2350fa7b' d='M256 0c53 0 96 43 96 96v3.6c0 15.7-12.7 28.4-28.4 28.4H188.4c-15.7 0-28.4-12.7-28.4-28.4V96c0-53 43-96 96-96zM41.4 105.4c12.5-12.5 32.8-12.5 45.3 0l64 64c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0l-64-64c-12.5-12.5-12.5-32.8 0-45.3zm429.3 0c12.5 12.5 12.5 32.8 0 45.3l-64 64c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l64-64c12.5-12.5 32.8-12.5 45.3 0zM128 224v32H64c-17.7 0-32 14.3-32 32s14.3 32 32 32h64v32c0 53 43 96 96 96s96-43 96-96V320h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H384V224c0-17.7-14.3-32-32-32s-32 14.3-32 32v32H192V224c0-17.7-14.3-32-32-32s-32 14.3-32 32zm160 96a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z'/%3E%3C/svg%3E" type="image/svg+xml">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-bug"></i> Sentry Solver</h1>
+                <p>Monitoramento e correção automática de issues do Sentry</p>
+            </div>
+            <div class="header-status">
+                <div class="config-buttons">
+                    <button id="toggleGitConfigBtn" class="btn btn-outline">
+                        <i class="fas fa-cog"></i> Git Config
+                    </button>
+                    <button id="toggleFilterConfigBtn" class="btn btn-outline">
+                        <i class="fas fa-filter"></i> Filtros
+                    </button>
+                </div>
+                <div class="status-indicator" id="connectionStatus">
+                    <i class="fas fa-circle"></i>
+                    <span>Conectado</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Project Selection -->
+            <div class="card project-selector">
+                <div class="card-header">
+                    <h2><i class="fas fa-project-diagram"></i> Seleção de Projeto</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="projectSearch">Projeto Sentry:</label>
+                        <div class="project-search-container">
+                            <input type="text" id="projectSearch" class="form-control" 
+                                   placeholder="Digite para buscar projetos..." 
+                                   autocomplete="off">
+                            <div class="project-dropdown" id="projectDropdown">
+                                <div class="dropdown-item loading">Carregando projetos...</div>
+                            </div>
+                            <input type="hidden" id="selectedProjectSlug" name="selectedProject">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="workDirectory">Diretório de Trabalho:</label>
+                        <input type="text" id="workDirectory" class="form-control" 
+                               placeholder="/caminho/para/seu/projeto/git" 
+                               title="Diretório onde o repositório Git está localizado">
+                        <small class="form-help">Diretório onde seus arquivos de código estão localizados (com .git)</small>
+                    </div>
+                    <div class="control-buttons">
+                        <button id="startBtn" class="btn btn-success" disabled>
+                            <i class="fas fa-play"></i> Iniciar Monitoramento
+                        </button>
+                        <button id="stopBtn" class="btn btn-danger" disabled>
+                            <i class="fas fa-stop"></i> Parar Monitoramento
+                        </button>
+                        <button id="runOnceBtn" class="btn btn-info" disabled>
+                            <i class="fas fa-refresh"></i> Executar Uma Vez
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Git Configuration -->
+            <div class="card git-config" style="display: none;">
+                <div class="card-header">
+                    <h2><i class="fab fa-git-alt"></i> Configuração Git</h2>
+                </div>
+                <div class="card-body">
+                    <div class="dashboard-grid">
+                        <div>
+                            <h4><i class="fas fa-code-branch"></i> Branch Settings</h4>
+                            <div class="form-group">
+                                <label for="branchPrefix">Prefixo da Branch:</label>
+                                <input type="text" id="branchPrefix" class="form-control" value="sentry-fix" 
+                                       placeholder="sentry-fix">
+                                <small class="form-help">Prefixo usado para nomear as branches</small>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="includeIssueId" checked>
+                                    Incluir ID do Issue
+                                </label>
+                                <small class="form-help">Adicionar ID do Sentry no nome da branch</small>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="includeTimestamp" checked>
+                                    Incluir Timestamp
+                                </label>
+                                <small class="form-help">Adicionar data/hora no nome da branch</small>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4><i class="fas fa-edit"></i> Commit Settings</h4>
+                            <div class="form-group">
+                                <label for="commitPrefix">Prefixo do Commit:</label>
+                                <input type="text" id="commitPrefix" class="form-control" value="fix" 
+                                       placeholder="fix">
+                                <small class="form-help">Prefixo para mensagens de commit</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="commitFormat">Formato do Commit:</label>
+                                <select id="commitFormat" class="form-control">
+                                    <option value="simple">Simple - Apenas título</option>
+                                    <option value="conventional" selected>Conventional - Título + detalhes</option>
+                                    <option value="detailed">Detailed - Completo com código</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="autoPush" checked>
+                                    Push Automático
+                                </label>
+                                <small class="form-help">Fazer push automático para o repositório remoto</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-buttons">
+                        <button id="saveGitConfig" class="btn btn-success">
+                            <i class="fas fa-save"></i> Salvar Configurações
+                        </button>
+                        <button id="resetGitConfig" class="btn btn-outline">
+                            <i class="fas fa-undo"></i> Restaurar Padrões
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issue Filtering Configuration -->
+            <div class="card issue-filters" style="display: none;">
+                <div class="card-header">
+                    <h2><i class="fas fa-filter"></i> Filtros de Issues</h2>
+                </div>
+                <div class="card-body">
+                    <div class="dashboard-grid">
+                        <div>
+                            <h4><i class="fas fa-exclamation-triangle"></i> Severidade e Contexto</h4>
+                            <div class="form-group">
+                                <label for="minSeverity">Severidade Mínima:</label>
+                                <select id="minSeverity" class="form-control">
+                                    <option value="all">Todas - Processar qualquer severidade</option>
+                                    <option value="debug">Debug - Debug e acima</option>
+                                    <option value="info">Info - Informativas e acima</option>
+                                    <option value="warning">Warning - Avisos e acima</option>
+                                    <option value="error" selected>Error - Apenas erros e fatal</option>
+                                    <option value="fatal">Fatal - Apenas erros fatais</option>
+                                </select>
+                                <small class="form-help">Processa apenas issues com esta severidade ou superior</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="environments">Environments:</label>
+                                <input type="text" id="environments" class="form-control" value="production" 
+                                       placeholder="production,staging ou 'all'">
+                                <small class="form-help">Lista separada por vírgulas ou 'all' para todos</small>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4><i class="fas fa-clock"></i> Frequência e Idade</h4>
+                            <div class="form-group">
+                                <label for="minOccurrences">Ocorrências Mínimas:</label>
+                                <input type="number" id="minOccurrences" class="form-control" value="1" min="1" max="1000">
+                                <small class="form-help">Processar apenas issues com N+ ocorrências</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="maxAgeDays">Idade Máxima (dias):</label>
+                                <input type="number" id="maxAgeDays" class="form-control" value="30" min="1" max="365">
+                                <small class="form-help">Issues mais antigas que isso serão ignoradas</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-buttons">
+                        <button id="saveFilterConfig" class="btn btn-success">
+                            <i class="fas fa-save"></i> Salvar Filtros
+                        </button>
+                        <button id="resetFilterConfig" class="btn btn-outline">
+                            <i class="fas fa-undo"></i> Restaurar Padrões
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Dashboard -->
+            <div class="dashboard-grid">
+                <!-- Solver Status -->
+                <div class="card status-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-cog"></i> Status do Solver</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="status-info">
+                            <div class="status-item">
+                                <span class="label">Status:</span>
+                                <span id="solverStatus" class="status-badge stopped">Parado</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="label">Projeto:</span>
+                                <span id="currentProject">-</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="label">Iniciado em:</span>
+                                <span id="startedAt">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="card stats-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-bar"></i> Estatísticas</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-number" id="totalIssues">0</div>
+                                <div class="stat-label">Total de Issues</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="fixedIssues">0</div>
+                                <div class="stat-label">Corrigidas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="resolvedIssues">0</div>
+                                <div class="stat-label">Resolvidas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number" id="pendingIssues">0</div>
+                                <div class="stat-label">Pendentes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Tables Section -->
+            <div class="tables-section">
+                <!-- Issues Table -->
+                <div class="card issues-table">
+                <div class="card-header">
+                    <h3><i class="fas fa-list"></i> Issues Recentes</h3>
+                    <div class="filter-controls">
+                        <select id="statusFilter" class="form-control">
+                            <option value="">Todos os Status</option>
+                            <option value="unresolved">Não Resolvidas</option>
+                            <option value="resolved">Resolvidas</option>
+                        </select>
+                        <button id="refreshIssues" class="btn btn-outline">
+                            <i class="fas fa-refresh"></i> Atualizar
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table id="issuesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Título</th>
+                                    <th>Nível</th>
+                                    <th>Status</th>
+                                    <th>Ocorrências</th>
+                                    <th>Correção</th>
+                                    <th>Confiança</th>
+                                    <th>Processado em</th>
+                                </tr>
+                            </thead>
+                            <tbody id="issuesTableBody">
+                                <tr>
+                                    <td colspan="8" class="text-center">Carregando issues...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+
+                <!-- Recent Fixes -->
+                <div class="card fixes-table">
+                    <div class="card-header">
+                        <h3><i class="fas fa-wrench"></i> Correções Recentes</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table id="fixesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Issue</th>
+                                        <th>Arquivo</th>
+                                        <th>Linha</th>
+                                        <th>Explicação</th>
+                                        <th>Confiança</th>
+                                        <th>Aplicado em</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fixesTableBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center">Nenhuma correção ainda</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
