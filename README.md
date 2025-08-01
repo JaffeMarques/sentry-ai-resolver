@@ -25,6 +25,7 @@ Sentry AI Resolver is a comprehensive solution for automating error resolution i
 - 📂 **Configurable Directory**: Set where to apply fixes
 - 📈 **Statistics & History**: View metrics and correction history
 - 🗄️ **Database Persistence**: SQLite database for data persistence
+- 🌍 **Multi-Language Support**: Works with PHP, Python and JavaScript
 - 🌙 **Modern UI**: Dark theme with Material Design
 
 ## 📋 Prerequisites
@@ -150,8 +151,9 @@ python main.py
 
 ### Pattern-Based Analysis
 - **Google Cloud Exceptions**: ServiceException, BadRequestException
-- **Carbon Date Exceptions**: InvalidFormatException  
-- **Common PHP Errors**: AttributeError, KeyError, IndexError
+- **Carbon Date Exceptions**: InvalidFormatException
+- **Common Python Errors**: AttributeError, KeyError, IndexError
+- **Common JavaScript Errors**: ReferenceError, TypeError
 - **Type Errors**: TypeError, ValueError
 - **Import Errors**: ImportError, NameError
 - **Extensible Patterns**: Easy to add new error types
@@ -286,7 +288,7 @@ Real-world impact of Sentry AI Resolver:
 ## 🎯 Roadmap
 
 - [ ] **AI-Enhanced Analysis**: Integration with GPT/Claude for advanced error analysis
-- [ ] **Multi-Language Support**: Extend beyond PHP to Python, JavaScript, Java
+- [x] **Multi-Language Support**: Extend beyond PHP to Python and JavaScript
 - [ ] **Smart Learning**: Learn from successful fixes to improve future suggestions
 - [ ] **Team Notifications**: Slack/Discord/Email integration for fix notifications
 - [ ] **Advanced Security**: Enhanced safety checks and code review automation
