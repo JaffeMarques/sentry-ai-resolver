@@ -40,10 +40,28 @@ class IssueAnalyzer:
             'serialize', 'unserialize', '$$', 'backticks', '`', 'shell',
             'cmd', 'command', 'process', 'subprocess'
         ]
+
+    def _detect_language(self, stack_trace: Optional[str]) -> str:
+        """Detect programming language based on stack trace contents"""
+        if not stack_trace:
+            return "unknown"
+
+        stack_trace = stack_trace.lower()
+        if ".php" in stack_trace:
+            return "php"
+        if ".py" in stack_trace:
+            return "python"
+        if ".js" in stack_trace:
+            return "javascript"
+        if ".java" in stack_trace:
+            return "java"
+        return "unknown"
     
     def analyze_issue(self, issue: SentryIssue) -> Optional[FixSuggestion]:
         """Analyze issue using pattern-based analysis"""
-        fix_suggestion = self._pattern_based_analysis(issue)
+        language = self._detect_language(issue.stack_trace)
+        self.logger.info(f"Detected language {language} for issue {issue.id}")
+        fix_suggestion = self._pattern_based_analysis(issue, language)
         
         if fix_suggestion:
             # Validate the fix suggestion for security
@@ -72,23 +90,51 @@ class IssueAnalyzer:
         error_type = self._extract_error_type(issue.title)
         if error_type in common_fixes:
             return common_fixes[error_type](issue)
-        
+
+        return None
+
+    def _basic_analysis_js(self, issue: SentryIssue) -> Optional[FixSuggestion]:
+        """Basic analysis for common JavaScript errors"""
+        if not issue.stack_trace:
+            return None
+
+        js_fixers = [
+            self._fix_js_reference_error,
+            self._fix_js_type_error,
+            self._fix_js_property_error,
+        ]
+
+        for fixer in js_fixers:
+            result = fixer(issue)
+            if result:
+                return result
+
         return None
     
     
-    def _pattern_based_analysis(self, issue: SentryIssue) -> Optional[FixSuggestion]:
-        """Enhanced pattern-based analysis for common Google Cloud errors"""
+    def _pattern_based_analysis(self, issue: SentryIssue, language: str) -> Optional[FixSuggestion]:
+        """Pattern-based analysis using language detection"""
         title = issue.title.lower()
-        
-        # Google Cloud Service Exception patterns
-        if "google\\cloud\\core\\exception\\serviceexception" in title:
-            return self._fix_gcp_service_exception(issue)
-        elif "google\\cloud\\core\\exception\\badrequestexception" in title:
-            return self._fix_gcp_bad_request_exception(issue)
-        elif "carbon\\exceptions\\invalidformatexception" in title:
-            return self._fix_carbon_date_exception(issue)
-        
-        # Fall back to basic analysis
+
+        if language == "php":
+            if "google\\cloud\\core\\exception\\serviceexception" in title:
+                return self._fix_gcp_service_exception(issue)
+            if "google\\cloud\\core\\exception\\badrequestexception" in title:
+                return self._fix_gcp_bad_request_exception(issue)
+            if "carbon\\exceptions\\invalidformatexception" in title:
+                return self._fix_carbon_date_exception(issue)
+            return None
+
+        if language == "javascript":
+            if "cannot read property" in title:
+                return self._fix_js_property_error(issue)
+            if "is not a function" in title:
+                return self._fix_js_type_error(issue)
+            if "is not defined" in title:
+                return self._fix_js_reference_error(issue)
+            return self._basic_analysis_js(issue)
+
+        # Default to Python-style analysis
         return self._basic_analysis(issue)
     
     def _fix_gcp_service_exception(self, issue: SentryIssue) -> Optional[FixSuggestion]:
@@ -303,6 +349,54 @@ public static function safeParse($dateString, $fallback = null)
             fixed_code=f"result = {var_name} if '{var_name}' in locals() else None",
             explanation=f"Add check for undefined variable '{var_name}'",
             confidence=0.4
+        )
+
+    def _fix_js_reference_error(self, issue: SentryIssue) -> Optional[FixSuggestion]:
+        match = re.search(r"ReferenceError: (\w+) is not defined", issue.title)
+        if not match:
+            return None
+
+        var_name = match.group(1)
+
+        return FixSuggestion(
+            file_path=self._extract_file_from_stacktrace(issue.stack_trace),
+            line_number=self._extract_line_from_stacktrace(issue.stack_trace),
+            original_code=var_name,
+            fixed_code=f"typeof {var_name} !== 'undefined' ? {var_name} : undefined",
+            explanation=f"Check if '{var_name}' is defined before use",
+            confidence=0.5,
+        )
+
+    def _fix_js_type_error(self, issue: SentryIssue) -> Optional[FixSuggestion]:
+        match = re.search(r"TypeError: (\w+) is not a function", issue.title)
+        if not match:
+            return None
+
+        func_name = match.group(1)
+
+        return FixSuggestion(
+            file_path=self._extract_file_from_stacktrace(issue.stack_trace),
+            line_number=self._extract_line_from_stacktrace(issue.stack_trace),
+            original_code=f"{func_name}()",
+            fixed_code=f"if (typeof {func_name} === 'function') {func_name}();",
+            explanation=f"Ensure {func_name} is a function before calling",
+            confidence=0.5,
+        )
+
+    def _fix_js_property_error(self, issue: SentryIssue) -> Optional[FixSuggestion]:
+        match = re.search(r"Cannot read property '(\w+)' of undefined", issue.title)
+        if not match:
+            return None
+
+        prop_name = match.group(1)
+
+        return FixSuggestion(
+            file_path=self._extract_file_from_stacktrace(issue.stack_trace),
+            line_number=self._extract_line_from_stacktrace(issue.stack_trace),
+            original_code=f"obj.{prop_name}",
+            fixed_code=f"obj ? obj.{prop_name} : undefined",
+            explanation=f"Check object before accessing '{prop_name}'",
+            confidence=0.5,
         )
     
     def _extract_file_from_stacktrace(self, stack_trace: Optional[str]) -> str:
