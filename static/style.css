@@ -7,36 +7,40 @@
 
 /* Color palette */
 :root {
-    --color-primary: #24274a;
-    --color-primary-light: #25284b;
-    --color-primary-dark: #26294c;
-    --color-surface: #232647;
-    --color-surface-dark: #222546;
-    --color-bg: #1e1f3b;
-    --color-bg-dark: #181c39;
-    --color-accent: #2d3051;
-    --color-border: #26294c;
-    --text-color: #f8f8f2;
+    --color-primary: #1a1b36;
+    --color-primary-light: #1e1f3b;
+    --color-primary-dark: #171833;
+    --color-surface: #1e1f3b;
+    --color-surface-dark: #171833;
+    --color-bg: #121225;
+    --color-bg-dark: #0f0f1e;
+    --color-accent: #8b5cf6;
+    --color-border: #2e2f4a;
+    --text-color: #ffffff;
+    --text-secondary: #a0a0b0;
+    --color-purple-light: #8b5cf6;
+    --color-purple-dark: #6d28d9;
+    --color-success: #10b981;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-    width: 12px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--color-surface-dark);
-    border-radius: 6px;
+    background: var(--color-primary-dark);
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--color-accent);
-    border-radius: 6px;
-    border: 2px solid var(--color-surface-dark);
+    border-radius: 4px;
+    border: 2px solid var(--color-primary-dark);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-primary-light);
+    background: var(--color-purple-light);
 }
 
 body {
@@ -59,10 +63,10 @@ body {
 .header {
     background: var(--color-primary);
     background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-    border-radius: 8px;
-    padding: 32px;
-    margin-bottom: 32px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -70,7 +74,7 @@ body {
 }
 
 .header-content h1 {
-    font-size: 1.875rem;
+    font-size: 1.75rem;
     font-weight: 600;
     color: var(--text-color);
     margin-bottom: 8px;
@@ -84,7 +88,7 @@ body {
 }
 
 .header-content p {
-    color: var(--text-color);
+    color: var(--text-secondary);
     font-size: 0.875rem;
     font-weight: 400;
     margin: 0;
@@ -97,7 +101,7 @@ body {
     padding: 8px 16px;
     background: rgba(45, 48, 81, 0.3);
     color: var(--text-color);
-    border-radius: 6px;
+    border-radius: 20px;
     font-weight: 500;
     font-size: 0.8125rem;
     border: 1px solid var(--color-accent);
@@ -113,7 +117,7 @@ body {
 .card {
     background: var(--color-surface);
     background-image: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-dark) 100%);
-    border-radius: 8px;
+    border-radius: 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     margin-bottom: 24px;
     overflow: visible;
@@ -143,6 +147,7 @@ body.dropdown-open .card:hover {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--color-border);
+    border-radius: 16px 16px 0 0;
 }
 
 .card-header h2, .card-header h3 {
@@ -158,7 +163,8 @@ body.dropdown-open .card:hover {
 
 .card-body {
     padding: 24px;
-    background: var(--color-bg-dark);
+    background: var(--color-primary);
+    border-radius: 0 0 16px 16px;
 }
 
 /* Project Selector */
@@ -180,7 +186,7 @@ body.dropdown-open .card:hover {
     width: 100%;
     padding: 12px 16px;
     border: 1px solid var(--color-border);
-    border-radius: 6px;
+    border-radius: 12px;
     font-size: 14px;
     font-family: inherit;
     transition: all 0.2s ease;
@@ -194,7 +200,7 @@ body.dropdown-open .card:hover {
 /* Add dropdown arrow for select elements */
 select.form-control {
     padding-right: 40px !important;
-    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%23f8f8f2' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/></svg>");
+    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%23ffffff' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/></svg>");
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 12px;
@@ -206,8 +212,8 @@ input.form-control {
 
 .form-control:focus {
     outline: none;
-    border-color: var(--color-primary-light);
-    box-shadow: 0 0 0 2px rgba(37, 40, 77, 0.3);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
     background: var(--color-primary);
 }
 
@@ -225,7 +231,7 @@ input.form-control {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-top: none;
-    border-radius: 0 0 8px 8px;
+    border-radius: 0 0 12px 12px;
     max-height: 300px;
     overflow-y: auto;
     z-index: 999999;
@@ -250,7 +256,7 @@ input.form-control {
 
 .dropdown-item.selectable:hover,
 .dropdown-item.selectable.selected {
-    background: var(--color-primary-light);
+    background: var(--color-accent);
     color: var(--text-color);
 }
 
@@ -278,7 +284,6 @@ input.form-control {
     color: var(--text-color);
 }
 
-
 .dropdown-item.no-results {
     color: var(--text-color);
 }
@@ -296,7 +301,7 @@ input.form-control {
 
 .project-slug {
     font-size: 12px;
-    color: var(--text-color);
+    color: var(--text-secondary);
     font-family: 'Fira Code', 'JetBrains Mono', monospace;
     margin-bottom: 2px;
 }
@@ -306,23 +311,23 @@ input.form-control {
     color: var(--text-color);
     background: var(--color-accent);
     padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: 12px;
     display: inline-block;
     margin-top: 4px;
 }
 
 /* Search input focus state */
 .project-search-container .form-control:focus {
-    border-radius: 8px 8px 0 0;
+    border-radius: 12px 12px 0 0;
 }
 
 .project-search-container .form-control {
-    border-radius: 8px;
+    border-radius: 12px;
 }
 
 .project-search-container .project-dropdown.show + .form-control,
 .project-search-container:focus-within .form-control {
-    border-radius: 8px 8px 0 0;
+    border-radius: 12px 12px 0 0;
 }
 
 /* Highlight matching text in search results */
@@ -336,7 +341,7 @@ input.form-control {
     display: block;
     margin-top: 6px;
     font-size: 0.8rem;
-    color: var(--color-border);
+    color: var(--text-secondary);
     font-style: italic;
 }
 
@@ -350,7 +355,7 @@ input.form-control {
 .btn {
     padding: 10px 20px;
     border: 1px solid transparent;
-    border-radius: 6px;
+    border-radius: 20px;
     font-size: 0.875rem;
     font-weight: 500;
     font-family: inherit;
@@ -364,14 +369,18 @@ input.form-control {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
 }
 
-.btn-success,
+.btn-success {
+    background: var(--color-success);
+    color: var(--text-color);
+    border-color: var(--color-success);
+}
+
 .btn-danger,
 .btn-info {
     background: var(--color-accent);
@@ -382,7 +391,7 @@ input.form-control {
 .btn-success:hover:not(:disabled),
 .btn-danger:hover:not(:disabled),
 .btn-info:hover:not(:disabled) {
-    background: var(--color-primary-light);
+    background: var(--color-purple-dark);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
@@ -510,7 +519,7 @@ input.form-control {
 }
 
 .status-badge.running {
-    background: var(--color-bg);
+    background: var(--color-success);
     color: var(--text-color);
 }
 
@@ -535,14 +544,15 @@ input.form-control {
     text-align: center;
     padding: 20px;
     background: var(--color-surface);
-    border-radius: 10px;
-    border: 2px solid var(--color-border);
+    border-radius: 16px;
+    border: 1px solid var(--color-border);
     transition: all 0.2s;
 }
 
 .stat-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-accent);
 }
 
 .stat-number {
@@ -554,7 +564,7 @@ input.form-control {
 
 .stat-label {
     font-size: 14px;
-    color: var(--color-border);
+    color: var(--text-secondary);
     font-weight: 500;
 }
 
@@ -571,7 +581,6 @@ input.form-control {
 }
 
 /* Tables */
-
 table {
     width: 100%;
     border-collapse: collapse;
@@ -579,7 +588,7 @@ table {
 }
 
 thead {
-    background: linear-gradient(135deg, var(--color-border), var(--color-surface));
+    background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
 }
 
 th, td {
@@ -597,13 +606,12 @@ th {
 }
 
 tbody tr {
-    background: rgba(40, 42, 54, 0.3);
+    background: rgba(30, 31, 59, 0.3);
     transition: all 0.2s ease;
 }
 
 tbody tr:hover {
-    background: rgba(189, 147, 249, 0.1);
-    transform: scale(1.01);
+    background: rgba(139, 92, 246, 0.1);
 }
 
 .text-center {
@@ -621,18 +629,17 @@ tbody tr:hover {
     border: 1px solid;
 }
 
-
 .issue-status.resolved {
-    background: var(--color-accent);
+    background: var(--color-success);
     color: var(--text-color);
-    border-color: var(--color-accent);
+    border-color: var(--color-success);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 .issue-status.unresolved {
-    background: var(--color-primary-dark);
+    background: var(--color-accent);
     color: var(--text-color);
-    border-color: var(--color-primary-dark);
+    border-color: var(--color-accent);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -680,9 +687,9 @@ tbody tr:hover {
 }
 
 .fix-status.applied {
-    background: var(--color-accent);
+    background: var(--color-success);
     color: var(--text-color);
-    border-color: var(--color-accent);
+    border-color: var(--color-success);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -747,8 +754,8 @@ tbody tr:hover {
 }
 
 .toast.success {
-    border-left-color: var(--color-accent);
-    border-color: var(--color-accent);
+    border-left-color: var(--color-success);
+    border-color: var(--color-success);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -875,12 +882,12 @@ tbody tr:hover {
 .git-config input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: var(--color-primary-light);
+    accent-color: var(--color-accent);
     cursor: pointer;
 }
 
 .git-config select {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%238be9fd' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
     background-position: right 12px center;
     background-repeat: no-repeat;
     background-size: 16px;
