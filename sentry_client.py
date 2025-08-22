@@ -226,6 +226,8 @@ class SentryMCPClient:
     
     def get_projects(self) -> List[Dict[str, str]]:
         """Get available projects from Sentry API"""
+        projects = []
+        
         try:
             import requests
             
@@ -240,23 +242,58 @@ class SentryMCPClient:
                 "Content-Type": "application/json"
             }
             
-            response = requests.get(url, headers=headers, timeout=10)
+            # Fetch all pages of projects
+            page_num = 1
+            current_url = url
+            all_projects_data = []
+            
+            while current_url and page_num <= 10:  # Limit to 10 pages as safety
+                self.logger.info(f"Fetching page {page_num} from Sentry API: {current_url}")
+                response = requests.get(current_url, headers=headers, timeout=15)
+                
+                if response.status_code != 200:
+                    break
+                    
+                page_projects = response.json()
+                all_projects_data.extend(page_projects)
+                self.logger.info(f"Page {page_num} returned {len(page_projects)} projects")
+                
+                # Check for next page
+                link_header = response.headers.get('Link', '')
+                next_url = None
+                
+                if 'rel="next"' in link_header:
+                    import re
+                    next_match = re.search(r'<([^>]+)>; rel="next"', link_header)
+                    if next_match:
+                        next_url = next_match.group(1)
+                
+                current_url = next_url
+                page_num += 1
             
             if response.status_code == 200:
-                projects_data = response.json()
-                projects = []
+                self.logger.info(f"API returned {len(all_projects_data)} total projects across {page_num-1} pages")
                 
-                for project in projects_data:
-                    projects.append({
-                        "name": project.get("name", project.get("slug", "Unknown")),
-                        "slug": project.get("slug", ""),
-                        "id": str(project.get("id", "")),
-                        "platform": project.get("platform", ""),
-                        "status": project.get("status", "active")
-                    })
+                for project in all_projects_data:
+                    # Include all projects (status field is often None/null in Sentry API)
+                    # Skip projects with empty or None slug
+                    if project.get("slug"):
+                        projects.append({
+                            "name": project.get("name", project.get("slug", "Unknown")),
+                            "slug": project.get("slug", ""),
+                            "id": str(project.get("id", "")),
+                            "platform": project.get("platform", ""),
+                            "status": project.get("status", "active")  # Default to active if not set
+                        })
                 
                 self.logger.info(f"Successfully fetched {len(projects)} projects from Sentry API")
-                # Don't return here - continue to check for missing projects
+                
+            elif response.status_code == 401:
+                self.logger.error("Unauthorized access to Sentry API - check auth token")
+                raise Exception("Unauthorized - check Sentry auth token")
+            elif response.status_code == 403:
+                self.logger.error("Forbidden access to Sentry API - check permissions")
+                raise Exception("Forbidden - check Sentry organization permissions")
             else:
                 self.logger.warning(f"Sentry API returned status {response.status_code}: {response.text}")
                 raise Exception(f"API call failed with status {response.status_code}")
@@ -266,33 +303,52 @@ class SentryMCPClient:
         except Exception as e:
             self.logger.error(f"Failed to fetch projects from Sentry API: {e}")
         
-        # Check if we got projects from API but are missing known ones
+        # If we got projects from API, try to add known missing ones
         if projects:
-            # Add ms-leads if missing (known to exist but sometimes doesn't appear in API)
-            ms_leads_exists = any(p.get('slug') == 'ms-leads' for p in projects)
-            self.logger.info(f"Checking for ms-leads: exists={ms_leads_exists}, total_projects={len(projects)}")
+            known_projects = ['ms-leads', 'movida-app', 'movida-backend', 'movida-web', 'movida-api', 'movida-dashboard']
             
-            if not ms_leads_exists:
-                self.logger.info("ms-leads not found in API response, testing direct access...")
-                try:
-                    # Test if we can access ms-leads directly
-                    test_client = SentryMCPClient(project_slug='ms-leads')
-                    test_issues = test_client.get_issues(limit=1)
-                    # If we can access it, add it to the list
-                    ms_leads_project = {
-                        "name": "MS Leads",
-                        "slug": "ms-leads",
-                        "id": "",
-                        "platform": "php",
-                        "status": "active"
-                    }
-                    projects.append(ms_leads_project)
-                    self.logger.info(f"Successfully added ms-leads project. New total: {len(projects)}")
-                except Exception as e:
-                    self.logger.warning(f"ms-leads project not accessible via direct access: {e}")
-            else:
-                self.logger.info("ms-leads already exists in project list")
+            for known_slug in known_projects:
+                if not any(p.get('slug') == known_slug for p in projects):
+                    self.logger.info(f"Testing direct access to missing project: {known_slug}")
+                    try:
+                        # Test if we can access the project directly
+                        test_client = SentryMCPClient(project_slug=known_slug)
+                        test_issues = test_client.get_issues(limit=1)
+                        
+                        # If successful, add to the list
+                        platform_map = {
+                            'ms-leads': 'php',
+                            'movida-app': 'react-native',
+                            'movida-backend': 'php',
+                            'movida-web': 'javascript',
+                            'movida-api': 'php',
+                            'movida-dashboard': 'react'
+                        }
+                        
+                        name_map = {
+                            'ms-leads': 'MS Leads',
+                            'movida-app': 'Movida App',
+                            'movida-backend': 'Movida Backend',
+                            'movida-web': 'Movida Web',
+                            'movida-api': 'Movida API',
+                            'movida-dashboard': 'Movida Dashboard'
+                        }
+                        
+                        projects.append({
+                            "name": name_map.get(known_slug, known_slug.title()),
+                            "slug": known_slug,
+                            "id": "",
+                            "platform": platform_map.get(known_slug, ""),
+                            "status": "active"
+                        })
+                        self.logger.info(f"Successfully added missing project: {known_slug}")
+                        
+                    except Exception as e:
+                        self.logger.debug(f"Project {known_slug} not accessible: {e}")
             
+            # Sort projects alphabetically by name
+            projects.sort(key=lambda x: x['name'].lower())
+            self.logger.info(f"Final project list has {len(projects)} projects")
             return projects
         
         # Fallback to expanded project list based on common Movida projects

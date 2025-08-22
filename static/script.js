@@ -874,8 +874,8 @@ async function loadFilterConfig() {
         const config = await response.json();
         
         // Update form fields with current config
-        minSeverity.value = config.issue_min_severity || 'error';
-        environments.value = config.issue_environments || 'production';
+        minSeverity.value = config.issue_min_severity || 'all';
+        environments.value = config.issue_environments || 'all';
         minOccurrences.value = config.issue_min_occurrences || 1;
         maxAgeDays.value = config.issue_max_age_days || 30;
         
@@ -888,7 +888,7 @@ async function loadFilterConfig() {
 async function saveFilterConfig() {
     const config = {
         issue_min_severity: minSeverity.value,
-        issue_environments: environments.value.trim() || 'production',
+        issue_environments: environments.value.trim() || 'all',
         issue_min_occurrences: parseInt(minOccurrences.value) || 1,
         issue_max_age_days: parseInt(maxAgeDays.value) || 30
     };
@@ -921,8 +921,8 @@ async function saveFilterConfig() {
 
 function resetFilterConfig() {
     if (confirm('Restaurar configurações padrão dos filtros?')) {
-        minSeverity.value = 'error';
-        environments.value = 'production';
+        minSeverity.value = 'all';
+        environments.value = 'all';
         minOccurrences.value = 1;
         maxAgeDays.value = 30;
         

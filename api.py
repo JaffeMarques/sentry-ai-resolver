@@ -38,8 +38,8 @@ class GitConfigRequest(BaseModel):
     git_auto_push: bool = True
 
 class IssueFilterRequest(BaseModel):
-    issue_min_severity: str = "error"  # all, debug, info, warning, error, fatal
-    issue_environments: str = "production"  # comma-separated list or "all"
+    issue_min_severity: str = "all"  # all, debug, info, warning, error, fatal
+    issue_environments: str = "all"  # comma-separated list or "all"
     issue_min_occurrences: int = 1
     issue_max_age_days: int = 30
 

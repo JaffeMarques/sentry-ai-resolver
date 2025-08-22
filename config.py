@@ -11,8 +11,8 @@ class Config(BaseSettings):
     max_issues_per_run: int = 5
     
     # Issue Filtering Configuration
-    issue_min_severity: str = "error"  # debug, info, warning, error, fatal
-    issue_environments: str = "production"  # comma-separated list or "all"
+    issue_min_severity: str = "all"  # debug, info, warning, error, fatal
+    issue_environments: str = "all"  # comma-separated list or "all"
     issue_min_occurrences: int = 1
     issue_max_age_days: int = 30
     
